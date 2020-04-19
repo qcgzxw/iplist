@@ -27,14 +27,14 @@ jobs:
 
     steps:
     - name: Pull repository "iplist_action"
-    - uses: actions/checkout@v2
+      uses: actions/checkout@v2
       with:
         repository: qcgzxw/iplist_action
         token: ${{ secrets.GIT_PAT }}
 
 
     - name: Pull repository "iplist"
-    - uses: actions/checkout@v2
+      uses: actions/checkout@v2
       with:
         path: iplist
         persist-credentials: false
@@ -60,7 +60,7 @@ jobs:
         git config --local user.email "qcgzxw@qq.com"
         git config --local user.name "GitHub Action"
         git add *
-        git commit -m "update" -a
+        git commit -m "update ip list" -a
 
 
     - name: Push changes
