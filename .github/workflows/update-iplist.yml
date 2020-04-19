@@ -1,0 +1,64 @@
+#=================================================
+# https://github.com/qcgzxw/iplist
+# Description: Update ip list using GitHub Actions
+# Lisence: MIT
+# Author: qcgzxw
+# Blog: https://www.qcgzxw.com
+#=================================================
+
+
+name: Update Ip List
+
+on:
+  release:
+    types: published
+  push:
+    branches: 
+      - master
+    paths:
+      - '.config'
+
+env:
+  REPO_URL: qcgzxw/iplist_auto
+  REPO_TOKEN: ${{ secrets.GITHUB_PAT }}
+  CONFIG_FILE: .config
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        path: iplist
+    - uses: actions/checkout@v2
+      with:
+        repository: env.REPO_URL
+        token: env.REPO_TOKEN
+
+    
+    - name: Initialization environment
+      run: |
+        sudo -E apt-get -qq update
+        sudo -E apt-get -qq install python3-setuptools
+
+    - name: Update ip list
+      run: |
+        [ -e iplist/$CONFIG_FILE ] && cp iplist/$CONFIG_FILE .config
+        pip3 install wheel
+        pip3 install -r requirements.txt
+        python3 main.py
+
+    - name: Commit files
+      run: |
+        cd iplist
+        git config --local user.email "qcgzxw@qq.com"
+        git config --local user.name "GitHub Action"
+        git add *
+        git commit -m "update" -a
+
+    - name: Push changes to submodule
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch:  "update"
